@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All the Fishes</title>
+</head>
+<body>
+<script type="module">
+
+//All of our Pixi code goes here
+
+//Import Pixi
+import {
+    Application,
+    Assets,
+    Sprite,
+    Container
+} from './js/pixi.js';
+
+//Create new app
+const app = new Application();
+
+//Initialize app
+await app.init({ 
+    background: 0x1099bb,
+    width:640,
+    height:480
+});
+document.body.appendChild(app.canvas);
+
+// Load the fish texture.
+const texture = await Assets.load('img/fish.png');
+
+
+// Create a new Sprite from an image path
+const fishsprite1 = new Sprite(texture);
+
+// Add fish to Stage
+//app.stage.addChild(fishsprite1);
+
+// Create animation container
+const fish1 = new Container();
+        fish1.x = 400;
+        fish1.y = 200;
+
+// Add to container
+fish1.addChild(fishsprite1);
+
+// Add container to stage
+app.stage.addChild(fish1);
+
+
+// Alter sprite paramters
+fishsprite1.anchor.set(0.15,0.5);
+//fishsprite1.anchor.set(0.5);
+fishsprite1.x = 0;
+fishsprite1.y = 0;
+fishsprite1.scale.set(.3);
+fishsprite1.angle = 0;
+//fishsprite1.tint = 0x0000FF;
+
+
+// Animation ticker
+app.ticker.add((time) => {
+
+    let tick = time.lastTime;
+
+    let bobbing = Math.sin(tick/500)
+                    * 30;
+
+    //Fish bobbing
+    fishsprite1.y = bobbing;
+
+    fish1.x = app.screen.width/2 + Math.sin(tick/2000) * app.screen.width/2;
+    //fish1.y = app.screen.height/2 + Math.sin(tick/2000) * app.screen.height/2;
+
+    //Fish flapping
+    let flap = .3 + (Math.sin(tick/30)*.003);
+    fishsprite1.scale.set(flap,.3);
+
+    //Fish moving
+    
+    /*
+    //Fish flapping
+    let flap = .3 + (Math.sin(tick/30)*.005);
+    fishsprite1.scale.set(flap,.3);
+    */
+});
+// */
+
+</script>
+</body>
+</html>
