@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animations</title>
+</head>
+<body>
+    
+<script type="module">
+
+//All of our Pixi code goes here
+
+//Import Pixi
+import {
+    Application,
+    Assets,
+    Sprite,
+    Container,
+    Graphics,
+    Text,
+    TextStyle
+} from './js/pixi.js';
+
+//Create new app
+const app = new Application();
+
+//Initialize app
+await app.init({ 
+    background: 0xCC6666,
+    width:640,
+    height:480
+});
+document.body.appendChild(app.canvas);
+
+// Load the fish texture.
+const texture = await Assets.load('img/fish.png');
+
+// Create a new Sprite from an image path
+window.fishsprite1 = new Sprite(texture);
+      fishsprite1.scale.set(.3);
+
+app.stage.addChild(fishsprite1);
+
+//Time to animate!
+window.Animate = {}; //Our Animation object
+
+//Interpolation functions
+Animate.linear = (x) => x;
+Animate.easeIn = (x) => x * x;
+Animate.easeOut = (x) => 1 - (1-x)*(1-x);
+Animate.easeInOut = (x) => {
+    if (x < .5) {
+        return 2 * x*x;
+    }
+    else return 1 - Math.pow(-2 * x + 2, 2) / 2;
+};
+
+Animate.to = function(obj, end) {
+
+    //Make it a Promise
+    return new Promise ( (resolve,reject) => {
+
+        //Duration
+        let duration = end.duration == undefined ? 0 : end.duration;
+
+        //Start state
+        let start = {
+            x : obj.x,
+            y : obj.y
+        };
+
+        //Set defaults
+        if (end.easing == undefined) end.easing = Animate.linear;
+
+        //Start time
+        let startTime = Date.now();
+
+        /* Duration 1000ms
+
+            [20,20](FISH)
+
+
+
+                        [100,100](destination)
+
+            startX + (delta * (destX - startX) )
+            startY + (delta * (destY - startY) )
+
+        */
+
+        //Animation loop
+        function loop() {
+
+            //Calculate times
+            let ticker = Date.now() - startTime; //ms that have elapsed
+            let delta = ticker/duration; //0.0 (just started) - 1.0 (done)
+            let ease = end.easing(delta);
+
+            //Check if we're done
+            if(delta >= 1) {
+                obj.x = end.x;
+                obj.y = end.y;
+                resolve();
+                return;
+            }
+
+            //Interpolate! (LERP)
+            function lerp(a, b, n) {
+                return a + ( (b-a) * n );
+            }
+
+            //Lerp our coordinates
+            obj.x = lerp(start.x, end.x, ease);
+            obj.y = lerp(start.y, end.y, ease);
+
+            //Loop!
+            requestAnimationFrame(loop);
+
+        }
+        loop();
+
+    } ); //End Promise
+
+}
+
+
+
+window.sleep = function (ms) {
+    //Make it a Promise
+    return new Promise ( (resolve,reject) => {
+        setTimeout(resolve,ms);
+    });
+};
+
+
+
+</script>
+
+</body>
+</html>
